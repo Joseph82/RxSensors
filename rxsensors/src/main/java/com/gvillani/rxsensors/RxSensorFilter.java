@@ -6,6 +6,7 @@ import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiPredicate;
 import io.reactivex.functions.Predicate;
 
@@ -28,31 +29,34 @@ public final class RxSensorFilter {
      * @return Predicate useful for filtering data based on the accuracy
      */
     public static Predicate<RxSensorEvent> minAccuracy(@Accuracy final int minAccuracy) {
-        return sensorEvent -> {
-            switch (minAccuracy) {
-                case SENSOR_STATUS_ACCURACY_HIGH:
-                    if (sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_HIGH) {
-                        return true;
-                    }
+        return new Predicate<RxSensorEvent>() {
+            @Override
+            public boolean test(@NonNull RxSensorEvent sensorEvent) throws Exception {
+                switch (minAccuracy) {
+                    case SENSOR_STATUS_ACCURACY_HIGH:
+                        if (sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_HIGH) {
+                            return true;
+                        }
 
-                    return false;
-                case SENSOR_STATUS_ACCURACY_MEDIUM:
-                    if (sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_HIGH
-                            || sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_MEDIUM) {
-                        return true;
-                    }
+                        return false;
+                    case SENSOR_STATUS_ACCURACY_MEDIUM:
+                        if (sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_HIGH
+                                || sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_MEDIUM) {
+                            return true;
+                        }
 
-                    return false;
-                case SENSOR_STATUS_ACCURACY_LOW:
-                    if (sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_HIGH
-                            || sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_MEDIUM
-                            || sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_LOW) {
-                        return true;
-                    }
+                        return false;
+                    case SENSOR_STATUS_ACCURACY_LOW:
+                        if (sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_HIGH
+                                || sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_MEDIUM
+                                || sensorEvent.accuracy == SENSOR_STATUS_ACCURACY_LOW) {
+                            return true;
+                        }
 
-                    return false;
-                default:
-                    return false;
+                        return false;
+                    default:
+                        return false;
+                }
             }
         };
     }
@@ -63,7 +67,12 @@ public final class RxSensorFilter {
      * @return a BiPredicate useful for filtering
      */
     public static BiPredicate<RxSensorEvent, RxSensorEvent> uniqueEventValues() {
-        return (event1, event2) -> compareEventValues(event1.values, event2.values);
+        return new BiPredicate<RxSensorEvent, RxSensorEvent>() {
+            @Override
+            public boolean test(@NonNull RxSensorEvent event1, @NonNull RxSensorEvent event2) throws Exception {
+                return compareEventValues(event1.values, event2.values);
+            }
+        };
     }
 
     /**
@@ -71,7 +80,12 @@ public final class RxSensorFilter {
      * value.
      */
     public static BiPredicate<RxSensorEvent, RxSensorEvent> uniqueEventValuesX() {
-        return (event1, event2) -> compareValues(event1.values[0], event2.values[0]);
+        return new BiPredicate<RxSensorEvent, RxSensorEvent>() {
+            @Override
+            public boolean test(@NonNull RxSensorEvent event1, @NonNull RxSensorEvent event2) throws Exception {
+                return compareValues(event1.values[0], event2.values[0]);
+            }
+        };
     }
 
     /**
@@ -79,7 +93,12 @@ public final class RxSensorFilter {
      * value.
      */
     public static BiPredicate<RxSensorEvent, RxSensorEvent> uniqueEventValuesY() {
-        return (event1, event2) -> compareValues(event1.values[1], event2.values[1]);
+        return new BiPredicate<RxSensorEvent, RxSensorEvent>() {
+            @Override
+            public boolean test(@NonNull RxSensorEvent event1, @NonNull RxSensorEvent event2) throws Exception {
+                return compareValues(event1.values[1], event2.values[1]);
+            }
+        };
     }
 
     /**
@@ -87,7 +106,12 @@ public final class RxSensorFilter {
      * value.
      */
     public static BiPredicate<RxSensorEvent, RxSensorEvent> uniqueEventValuesZ() {
-        return (event1, event2) -> compareValues(event1.values[2], event2.values[2]);
+        return new BiPredicate<RxSensorEvent, RxSensorEvent>() {
+            @Override
+            public boolean test(@NonNull RxSensorEvent event1, @NonNull RxSensorEvent event2) throws Exception {
+                return compareValues(event1.values[2], event2.values[2]);
+            }
+        };
     }
 
     private static boolean compareValues(float value1, float value2) {
@@ -101,8 +125,13 @@ public final class RxSensorFilter {
      * accuracy.
      */
     public static BiPredicate<SensorEvent, SensorEvent> uniqueEvent() {
-        return (event1, event2) -> compareEventValues(event1.values, event2.values)
-                || compareEventAccuracy(event1.accuracy, event2.accuracy);
+        return new BiPredicate<SensorEvent, SensorEvent>() {
+            @Override
+            public boolean test(@NonNull SensorEvent event1, @NonNull SensorEvent event2) throws Exception {
+                return compareEventValues(event1.values, event2.values)
+                        || compareEventAccuracy(event1.accuracy, event2.accuracy);
+            }
+        };
     }
 
     private static boolean compareEventAccuracy(int accuracy1, int accuracy2) {

@@ -5,6 +5,7 @@ import org.reactivestreams.Publisher;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.BiFunction;
 
 public class RxSensorTransformer {
 
@@ -23,13 +24,15 @@ public class RxSensorTransformer {
         return new FlowableTransformer<RxSensorEvent, RxSensorEvent>() {
             @Override
             public Publisher<RxSensorEvent> apply(@NonNull Flowable<RxSensorEvent> upstream) {
-                return upstream.scan((rxSensorEvent1, rxSensorEvent2) -> {
+                return upstream.scan(new BiFunction<RxSensorEvent, RxSensorEvent, RxSensorEvent>() {
+                    @Override
+                    public RxSensorEvent apply(@NonNull RxSensorEvent rxSensorEvent1, @NonNull RxSensorEvent rxSensorEvent2) throws Exception {
+                        for (int i = 0; i < rxSensorEvent2.values.length; i++) {
+                            rxSensorEvent2.values[i] = applyLpf(rxSensorEvent1.values[i], rxSensorEvent2.values[i], parameter);
+                        }
 
-                    for (int i = 0; i < rxSensorEvent2.values.length; i++) {
-                        rxSensorEvent2.values[i] = applyLpf(rxSensorEvent1.values[i], rxSensorEvent2.values[i], parameter);
+                        return rxSensorEvent2;
                     }
-
-                    return rxSensorEvent2;
                 });
             }
         };
@@ -49,11 +52,13 @@ public class RxSensorTransformer {
         return new FlowableTransformer<RxSensorEvent, RxSensorEvent>() {
             @Override
             public Publisher<RxSensorEvent> apply(@NonNull Flowable<RxSensorEvent> upstream) {
-                return upstream.scan((rxSensorEvent1, rxSensorEvent2) -> {
+                return upstream.scan(new BiFunction<RxSensorEvent, RxSensorEvent, RxSensorEvent>() {
+                    @Override
+                    public RxSensorEvent apply(@NonNull RxSensorEvent rxSensorEvent1, @NonNull RxSensorEvent rxSensorEvent2) throws Exception {
+                        rxSensorEvent2.values[0] = applyLpf(rxSensorEvent1.values[0], rxSensorEvent2.values[0], parameter);
 
-                    rxSensorEvent2.values[0] = applyLpf(rxSensorEvent1.values[0], rxSensorEvent2.values[0], parameter);
-
-                    return rxSensorEvent2;
+                        return rxSensorEvent2;
+                    }
                 });
             }
         };
@@ -72,11 +77,13 @@ public class RxSensorTransformer {
         return new FlowableTransformer<RxSensorEvent, RxSensorEvent>() {
             @Override
             public Publisher<RxSensorEvent> apply(@NonNull Flowable<RxSensorEvent> upstream) {
-                return upstream.scan((rxSensorEvent1, rxSensorEvent2) -> {
+                return upstream.scan(new BiFunction<RxSensorEvent, RxSensorEvent, RxSensorEvent>() {
+                    @Override
+                    public RxSensorEvent apply(@NonNull RxSensorEvent rxSensorEvent1, @NonNull RxSensorEvent rxSensorEvent2) throws Exception {
+                        rxSensorEvent2.values[1] = applyLpf(rxSensorEvent1.values[1], rxSensorEvent2.values[1], parameter);
 
-                    rxSensorEvent2.values[1] = applyLpf(rxSensorEvent1.values[1], rxSensorEvent2.values[1], parameter);
-
-                    return rxSensorEvent2;
+                        return rxSensorEvent2;
+                    }
                 });
             }
         };
@@ -94,12 +101,13 @@ public class RxSensorTransformer {
         return new FlowableTransformer<RxSensorEvent, RxSensorEvent>() {
             @Override
             public Publisher<RxSensorEvent> apply(@NonNull Flowable<RxSensorEvent> upstream) {
-                return upstream.scan((rxSensorEvent1, rxSensorEvent2) -> {
+                return upstream.scan(new BiFunction<RxSensorEvent, RxSensorEvent, RxSensorEvent>() {
+                    @Override
+                    public RxSensorEvent apply(@NonNull RxSensorEvent rxSensorEvent1, @NonNull RxSensorEvent rxSensorEvent2) throws Exception {
+                        rxSensorEvent2.values[2] = applyLpf(rxSensorEvent1.values[2], rxSensorEvent2.values[2], parameter);
 
-                    rxSensorEvent2.values[2] = applyLpf(rxSensorEvent1.values[2], rxSensorEvent2.values[2], parameter);
-
-
-                    return rxSensorEvent2;
+                        return rxSensorEvent2;
+                    }
                 });
             }
         };

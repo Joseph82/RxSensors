@@ -9,6 +9,9 @@ import android.os.Build;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Cancellable;
 
 public final class OrientationEventFlowable {
 
@@ -93,16 +96,26 @@ public final class OrientationEventFlowable {
         }
 
         public Flowable<RxSensorEvent> build() {
-            OrientationEventFlowable o = new OrientationEventFlowable(this);
-            return Flowable.create(e -> {
-                Listener listener = o.isRemapping ? new Listener(e, o.enableLowPassFilter, o.lpfAlpha,
-                        o.remappingCoordinateX, o.remappingCoordinateY) :
-                        new Listener(e, o.enableLowPassFilter, o.lpfAlpha);
-                e.setCancellable(() -> o.sensorManager.unregisterListener(listener));
-                if (Build.VERSION.SDK_INT < 19) {
-                    o.sensorManager.registerListener(listener, o.sensorRotationVector, o.samplingPeriodUs);
-                } else {
-                    o.sensorManager.registerListener(listener, o.sensorRotationVector, o.samplingPeriodUs, o.maxReportLatencyUs);
+            final OrientationEventFlowable o = new OrientationEventFlowable(this);
+
+            return Flowable.create(new FlowableOnSubscribe<RxSensorEvent>() {
+                @Override
+                public void subscribe(@NonNull FlowableEmitter<RxSensorEvent> e) throws Exception {
+
+                    final Listener listener = o.isRemapping ? new Listener(e, o.enableLowPassFilter, o.lpfAlpha,
+                            o.remappingCoordinateX, o.remappingCoordinateY) :
+                            new Listener(e, o.enableLowPassFilter, o.lpfAlpha);
+                    e.setCancellable(new Cancellable() {
+                        @Override
+                        public void cancel() throws Exception {
+                            o.sensorManager.unregisterListener(listener);
+                        }
+                    });
+                    if (Build.VERSION.SDK_INT < 19) {
+                        o.sensorManager.registerListener(listener, o.sensorRotationVector, o.samplingPeriodUs);
+                    } else {
+                        o.sensorManager.registerListener(listener, o.sensorRotationVector, o.samplingPeriodUs, o.maxReportLatencyUs);
+                    }
                 }
             }, BackpressureStrategy.MISSING);
         }

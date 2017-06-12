@@ -9,6 +9,9 @@ import android.os.Build;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Cancellable;
 
 public final class AccuracyEventFlowable {
 
@@ -21,16 +24,24 @@ public final class AccuracyEventFlowable {
      * @param maxReportLatencyUs See {@link SensorManager#registerListener(SensorEventListener listener, Sensor sensor, int samplingPeriodUs, int maxReportLatencyUs)}
      * @return A Flowable that generates {@link RxAccuracyEvent} based on the provided parameters.
      */
-    public static Flowable<RxAccuracyEvent> create(SensorManager sensorManager, Sensor sensor,
-                                                   int samplingPeriodUs, int maxReportLatencyUs) {
-        return Flowable.create(e -> {
-            Listener listener = new Listener(e);
-            e.setCancellable(() -> sensorManager.unregisterListener(listener));
+    public static Flowable<RxAccuracyEvent> create(final SensorManager sensorManager, final Sensor sensor,
+                                                   final int samplingPeriodUs, final int maxReportLatencyUs) {
+        return Flowable.create(new FlowableOnSubscribe<RxAccuracyEvent>() {
+            @Override
+            public void subscribe(@NonNull FlowableEmitter<RxAccuracyEvent> e) throws Exception {
+                final Listener listener = new Listener(e);
+                e.setCancellable(new Cancellable() {
+                    @Override
+                    public void cancel() throws Exception {
+                        sensorManager.unregisterListener(listener);
+                    }
+                });
 
-            if (Build.VERSION.SDK_INT < 19) {
-                sensorManager.registerListener(listener, sensor, samplingPeriodUs);
-            } else {
-                sensorManager.registerListener(listener, sensor, samplingPeriodUs, maxReportLatencyUs);
+                if (Build.VERSION.SDK_INT < 19) {
+                    sensorManager.registerListener(listener, sensor, samplingPeriodUs);
+                } else {
+                    sensorManager.registerListener(listener, sensor, samplingPeriodUs, maxReportLatencyUs);
+                }
             }
         }, BackpressureStrategy.MISSING);
     }
