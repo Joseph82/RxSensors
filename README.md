@@ -40,7 +40,7 @@ Let's suppose that we want to:
 * receive only distinct events
 * eventually we want the result to be displayed on the UI.
 
-The below snipped of code will do that:
+The below snippet of code will do that:
 
 ```Java
 Disposable disposable = RxSensor.sensorEvent(this, Sensor.TYPE_ACCELEROMETER)
