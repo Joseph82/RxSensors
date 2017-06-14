@@ -83,6 +83,6 @@ Disposable disposable = RxSensor.orientationEventWithRemap(this,
 
 ## Notes
 
-* A disadvantage of using this library is that it can produce a pretty high pressure on the Garbage Collector, expecially for high frequency data acquiring. This is due to the fact that each time an event is sent a new object is created. Future development will provide a better stratgy for handling this condition (maybe using an object pool).
+* A disadvantage of using this library is that it can produce a pretty high pressure on the Garbage Collector, expecially for high frequency data acquiring. This is due to the fact that each time an event is sent a new object is created. Further developments will provide a better strategy for handling this condition (maybe using an object pool).
 * It is important to note that a filter like the LPF can work fine only if the source of data has no discontinuity. For example for a stream of data that vary in the range -180, +180 it will not work, because of the jump (discontinuity) in the end scale value.
 * Most of the filters are applicable for the three "dimensions" (x, y, z), even though not all of the sensor data has exactly three dimensions: for example the Environment sensors have typically just one dimensions, this means that all the filter or elaboration on the second (y) and third (z) dimension will not have any effect.
