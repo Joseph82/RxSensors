@@ -46,7 +46,7 @@ The below snippet of code will do that:
 Disposable disposable = RxSensor.sensorEvent(this, Sensor.TYPE_ACCELEROMETER)
                 .subscribeOn(Schedulers.computation())
                 .filter(RxSensorFilter.minAccuracy(SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM))
-                .onBackpressureBuffer(128, () -> Log.d("test-activity", "dropped item"), BackpressureOverflowStrategy.DROP_LATEST)
+                .onBackpressureBuffer(128, () -> Log.w(TAG, "dropped item!"), BackpressureOverflowStrategy.DROP_LATEST)
                 .distinctUntilChanged(RxSensorFilter.uniqueEventValues())
                 .compose(RxSensorTransformer.lowPassFilter(0.2F))
                 .observeOn(AndroidSchedulers.mainThread())
